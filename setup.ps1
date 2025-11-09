@@ -60,6 +60,7 @@ function Create-Folders {
 
 # COPY TEMPLATES
 function Copy-Templates {
+    
     param([string]$projectName)
     Copy-Item -Path ".\templates\deployment.ps1" -Destination ".\$projectName\scripts\deployment.ps1" -Force
     Copy-Item -Path ".\templates\main.js" -Destination ".\$projectName\src\js\main.js" -Force
@@ -98,7 +99,7 @@ function Setup-NpmAndCode {
             Write-Host "`r" -NoNewline
             $seconds--
         }
-       code ".\$projectName\index.html"
+        code .
     } | Out-Null
 
     # Ejecutar npm run dev attached
@@ -116,7 +117,6 @@ function Main {
     $activityNumber = $projectInfo[1]
 
     $projectName = "P$partialNumber$studentName$typeStr$activityNumber`_web"
-
     Create-Folders $projectName
     Copy-Templates $projectName
     Update-ViteConfig $projectName
