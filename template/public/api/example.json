@@ -1,0 +1,11 @@
+{
+	"seafood_ecuador": [
+		{
+			"id": 1,
+			"nombre": "Ceviche de camarón",
+			"descripcion": "Camarones cocidos en jugo de limón con tomate, cebolla y cilantro.",
+			"region": "Costa",
+			"precio_aproximado_usd": 6.5
+		}
+	]
+}

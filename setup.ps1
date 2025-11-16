@@ -1,6 +1,8 @@
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+
 # READ STUDENT NAME AND PARTIAL NUMBER FROM ENV
 function Get-EnvValues {
-    $envFile = ".\.env.development"
+    $envFile = "$ScriptRoot\.env.development"
     if (-Not (Test-Path $envFile)) {
         Write-Host "ERROR: .env.development file not found!" -ForegroundColor Red
         exit
@@ -60,14 +62,16 @@ function Create-Folders {
 
 # COPY TEMPLATES
 function Copy-Templates {
-    
     param([string]$projectName)
-    Copy-Item -Path ".\templates\deployment.ps1" -Destination ".\$projectName\scripts\deployment.ps1" -Force
-    Copy-Item -Path ".\templates\main.js" -Destination ".\$projectName\src\js\main.js" -Force
-    Copy-Item -Path ".\templates\index.html" -Destination ".\$projectName\index.html" -Force
-    Copy-Item -Path ".\templates\.gitignore" -Destination ".\$projectName\.gitignore" -Force
-    Copy-Item -Path ".\templates\package.json" -Destination ".\$projectName\package.json" -Force
-    Copy-Item -Path ".\templates\vite.config.js" -Destination ".\$projectName\vite.config.js" -Force
+
+    Copy-Item -Path "$ScriptRoot\template\scripts\deployment.ps1" -Destination ".\$projectName\scripts\deployment.ps1" -Force
+    Copy-Item -Path "$ScriptRoot\template\main.js" -Destination ".\$projectName\src\js\main.js" -Force
+    Copy-Item -Path "$ScriptRoot\template\index.html" -Destination ".\$projectName\index.html" -Force
+    Copy-Item -Path "$ScriptRoot\template\.gitignore" -Destination ".\$projectName\.gitignore" -Force
+    Copy-Item -Path "$ScriptRoot\template\package.json" -Destination ".\$projectName\package.json" -Force
+    Copy-Item -Path "$ScriptRoot\template\vite.config.js" -Destination ".\$projectName\vite.config.js" -Force
+    Copy-Item -Path "$ScriptRoot\template\public" -Destination ".\$projectName\public" -Recurse -Force
+
     Write-Host "[SUCCESS] Templates copied successfully" -ForegroundColor Green
 }
 
@@ -75,7 +79,8 @@ function Copy-Templates {
 function Update-ViteConfig {
     param([string]$projectName)
     $vitePath = ".\$projectName\vite.config.js"
-    (Get-Content $vitePath) -replace "base: '/restaurant_app_1/',", "base: '/$projectName/'," | Set-Content $vitePath
+
+    (Get-Content $vitePath) -replace "base: '\/restaurant_app_1\/',", "base: '/$projectName/'," | Set-Content $vitePath
     Write-Host "[INFO] Vite config updated for $projectName" -ForegroundColor Cyan
 }
 
@@ -85,12 +90,13 @@ function Setup-NpmAndCode {
     Set-Location ".\$projectName"
     Write-Host "[MESSAGE] Project $projectName created" -ForegroundColor Magenta
     Write-Host "[MESSAGE] Installing npm packages... wait for it." -ForegroundColor Magenta
+
     npm install
+
     cls
     Write-Host "[SUCCESS] Packages installed successfully." -ForegroundColor Green
     Write-Host "[INFO] Starting VS Code in 5s..." -ForegroundColor Cyan
 
-    # TIME VS CODE OPEN
     Start-Job {
         $seconds = 5
         while ($seconds -gt 0) {
@@ -102,7 +108,6 @@ function Setup-NpmAndCode {
         code .
     } | Out-Null
 
-    # Ejecutar npm run dev attached
     npm run dev
 }
 
@@ -116,12 +121,14 @@ function Main {
     $typeStr = $projectInfo[0]
     $activityNumber = $projectInfo[1]
 
-    $projectName = "P$partialNumber$studentName$typeStr$activityNumber`_web"
+    $projectName = "P$partialNumber$typeStr$activityNumber$studentName`"
+
+    Set-Location "$HOME\Downloads"
+
     Create-Folders $projectName
     Copy-Templates $projectName
     Update-ViteConfig $projectName
     Setup-NpmAndCode $projectName
 }
 
-# RUN MAIN
 Main
